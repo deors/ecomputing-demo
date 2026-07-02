@@ -1,0 +1,22 @@
+{
+  "name": "library-app",
+  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "lint": "npm run lint -w frontend -w backend",
+    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "e2e": "playwright test --config e2e/playwright.config.ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

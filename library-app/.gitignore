@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Docker overrides
+docker-compose.override.yml
+
+# Prisma generated
+backend/prisma/migrations/dev/
+
+# Test / coverage
+coverage/
+playwright-report/
+test-results/
+blob-report/

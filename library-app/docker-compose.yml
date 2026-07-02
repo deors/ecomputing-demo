@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-library}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-library}
+      POSTGRES_DB: ${POSTGRES_DB:-library_dev}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-library}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-library}:${POSTGRES_PASSWORD:-library}@postgres:5432/${POSTGRES_DB:-library_dev}
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production-min32chars}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-refresh-secret-change-in-production-32}
+      PORT: 3000
+      NODE_ENV: development
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend:/app
+      - backend_modules:/app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000}
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./frontend:/app
+      - frontend_modules:/app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  backend_modules:
+  frontend_modules:
