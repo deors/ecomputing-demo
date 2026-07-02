@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Book {
+  id              String   @id @default(cuid())
+  isbn            String?  @unique
+  title           String
+  author          String
+  category        String?
+  publisher       String?
+  year            Int?
+  totalCopies     Int      @default(1)
+  availableCopies Int      @default(1)
+  description     String?
+  coverUrl        String?
+  active          Boolean  @default(true)
+  loans           Loan[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Member {
+  id           String       @id @default(cuid())
+  memberNumber String       @unique
+  name         String
+  email        String       @unique
+  phone        String?
+  address      String?
+  status       MemberStatus @default(ACTIVE)
+  user         User?
+  loans        Loan[]
+  joinedAt     DateTime     @default(now())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model Loan {
+  id         String     @id @default(cuid())
+  book       Book       @relation(fields: [bookId], references: [id])
+  bookId     String
+  member     Member     @relation(fields: [memberId], references: [id])
+  memberId   String
+  loanDate   DateTime   @default(now())
+  dueDate    DateTime
+  returnDate DateTime?
+  status     LoanStatus @default(ACTIVE)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(MEMBER)
+  member       Member?  @relation(fields: [memberId], references: [id])
+  memberId     String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+enum LoanStatus {
+  ACTIVE
+  RETURNED
+  OVERDUE
+}
+
+enum MemberStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
