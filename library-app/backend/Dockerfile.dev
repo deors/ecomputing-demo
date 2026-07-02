@@ -1,0 +1,16 @@
+FROM node:20-alpine
+WORKDIR /app
+
+# Copy workspace manifests first so npm can resolve @library/shared
+COPY package.json package-lock.json ./
+COPY frontend/package.json ./frontend/
+COPY backend/package.json ./backend/
+COPY shared/package.json ./shared/
+RUN npm install
+
+# Source is mounted via docker-compose volume at runtime (hot-reload)
+COPY . .
+
+WORKDIR /app/backend
+EXPOSE 3000
+CMD ["npm", "run", "dev"]
