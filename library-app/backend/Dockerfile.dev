@@ -1,6 +1,11 @@
 FROM node:20-alpine
 WORKDIR /app
 
+# OpenSSL is required by the Prisma query/migration engine at runtime.
+# Alpine 3.18+ ships OpenSSL 3.x; without this package Prisma falls back
+# to the openssl-1.1.x binary which fails to load on Alpine.
+RUN apk add --no-cache openssl
+
 # Copy workspace manifests and prisma schema before npm install
 # so that prisma generate (postinstall hook) has the schema available
 COPY package.json package-lock.json ./
